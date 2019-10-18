@@ -71,7 +71,7 @@ paths:
           description: "SubscriberDetails object that needs to be accepted"
           required: true
           schema:
-            $ref: "#/definitions/Status"
+            $ref: "#/definitions/User"
       produces:
         - "application/json"
       consumes:
@@ -95,7 +95,7 @@ paths:
           description: "SubscriberDetails object that needs to be accepted"
           required: true
           schema:
-            $ref: "#/definitions/Subscriber"
+            $ref: "#/definitions/User"
       produces:
         - "application/json"
       consumes:
@@ -118,7 +118,7 @@ paths:
           description: "SubscriberDetails object that needs to be removed"
           required: true
           schema:
-            $ref: "#/definitions/Subscriber"
+            $ref: "#/definitions/User"
       produces:
         - "application/json"
       consumes:
@@ -131,7 +131,7 @@ paths:
         500:
           description: "internal server error"
 definitions:
-  Subscriber:
+  User:
     description: "SubscriberDetails describes a new subscriber who wants to get updates from the instance"
     type: "object"
     properties:
@@ -141,6 +141,10 @@ definitions:
       alias:
         type: "string"
         example: "John Wick"
+      status:
+        type: array
+        items:
+          $ref: '#/definitions/Status'
   Status:
     description: "SubscriberDetails describes a new subscriber who wants to get updates from the instance"
     type: "object"
