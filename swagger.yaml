@@ -46,16 +46,7 @@ paths:
         - "status"
       summary: "get the current status to the instance"
       operationId: "getStatus"
-      parameters:
-        - in: "body"
-          name: "body"
-          description: "SubscriberDetails object that needs to be accepted"
-          required: true
-          schema:
-            $ref: "#/definitions/Status"
       produces:
-        - "application/json"
-      consumes:
         - "application/json"
       responses:
         200:
