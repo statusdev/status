@@ -30,7 +30,7 @@ type Service interface {
 
 	// our + subscribed status
 	// called by the client
-	GetStatus() ([]ProfileStatus, error)
+	GetStatus() ([]*ProfileStatus, error)
 
 	// our subscriptions
 	// called by the client
@@ -63,8 +63,11 @@ func (s *service) RemoveSubscriber(profile Profile) error {
 }
 
 func (s *service) AddStatus(status StatusItem) error {
-	// TODO inform other instances
 	s.Owner.Status = append(s.Owner.Status, status)
+	err := Notify(s.Owner)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -77,20 +80,26 @@ func (s *service) GetStatus() ([]ProfileStatus, error) {
 }
 
 func (s *service) SubscribeTo(profile Profile) error {
-	// TODO inform other instances
+	err := AddSubscription(Profile{URL:s.Owner.URL}, profile.URL)
+	if err != nil {
+		return err
+	}
 	s.Subscriptions[profile.URL] = profile
 	return nil
 }
 
 func (s *service) UnsubscribeFrom(profile Profile) error {
-	// TODO inform other instances
+	err := RemoveSubscription(Profile{URL:s.Owner.URL}, profile.URL)
+	if err != nil {
+		return err
+	}
 	delete(s.Subscriptions, profile.URL)
 	return nil
 }
 
 func (s *service) UpdateSubscriptionFrom(status ProfileStatus) error {
 	if _, subscribed := s.Subscriptions[status.URL]; !subscribed {
-		fmt.Errorf("no subscription for %s", status.URL)
+		return fmt.Errorf("no subscription for %s", status.URL)
 	}
 	s.State[status.URL] = status
 	return nil
