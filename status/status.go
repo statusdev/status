@@ -6,36 +6,46 @@ type Status struct {
 	Caption string `json:"caption"`
 }
 
-type Subscriber struct {
-	URL   string `json:"url"`
-	Alias string `json:"alias"`
+type User struct {
+	URL    string   `json:"url"`
+	Alias  string   `json:"alias"`
+	Status []string `json:"status"`
 }
 
 type Service interface {
-	Subscribe(subscriber Subscriber) error
-	Unsubscribe(subscriber Subscriber) error
+	// subscribers
+	AddSubscriber(user User) error
+	RemoveSubscriber(user User) error
+
+	// our status
 	AddStatus(status Status) error
 	GetStatus() ([]Status, error)
-	AddNotification(status Status) error
-	GetNotifications() ([]Status, error)
+
+	// our subscriptions
+	SubscribeTo(user User) error
+	UnsubscribeTo(user User) error
+
+	// receive updates
+	UpdateSubscriptionFrom(user User) error
+	GetSubscriptions() ([]User, error)
 }
 
 type service struct {
-	Subscribers   []Subscriber
-	Status        []Status
-	Notifications []Status
+	Owner         User
+	Subscribers   []User
+	Subscriptions []User
 }
 
 func NewService() *service {
 	return new(service)
 }
 
-func (s *service) Subscribe(subscriber Subscriber) error {
+func (s *service) Subscribe(subscriber User) error {
 	// implement me
 	return nil
 }
 
-func (s *service) Unsubscribe(subscriber Subscriber) error {
+func (s *service) Unsubscribe(subscriber User) error {
 	// implement me
 	return nil
 }
