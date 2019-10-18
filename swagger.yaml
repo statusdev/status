@@ -1,0 +1,165 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: "status OpenAPI"
+  contact:
+    email: "chris@cbrgm.net"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "cbrgm.net"
+basePath: "/"
+tags:
+  - name: "subscribe"
+    description: "provides endpoints to subscribe to an instance"
+  - name: "status"
+    description: "provides endpoints to interact with an instance status"
+schemes:
+  - "https"
+paths:
+  /status:
+    post:
+      tags:
+        - "status"
+      summary: "add a new status to the instance"
+      operationId: "setStatus"
+      parameters:
+        - in: "formData"
+          name: "media"
+          type: "file"
+          description: "The media to upload"
+      produces:
+        - "application/json"
+      consumes:
+        - "multipart/form-data"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/Status"
+        401:
+          description: "unauthorized"
+        500:
+          description: "internal server error"
+    get:
+      tags:
+        - "status"
+      summary: "get the current status to the instance"
+      operationId: "getStatus"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "SubscriberDetails object that needs to be accepted"
+          required: true
+          schema:
+            $ref: "#/definitions/Status"
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Status"
+        401:
+          description: "unauthorized"
+        500:
+          description: "internal server error"
+  /notifications:
+    post:
+      tags:
+        - "status"
+      summary: "get the current status to the instance"
+      operationId: "notify"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "SubscriberDetails object that needs to be accepted"
+          required: true
+          schema:
+            $ref: "#/definitions/Status"
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: "OK"
+        401:
+          description: "unauthorized"
+        500:
+          description: "internal server error"
+  /subscribers:
+    post:
+      tags:
+        - "subscribe"
+      summary: "subscribes to the instance"
+      operationId: "subscribe"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "SubscriberDetails object that needs to be accepted"
+          required: true
+          schema:
+            $ref: "#/definitions/Subscriber"
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: "OK"
+        401:
+          description: "unauthorized"
+        500:
+          description: "internal server error"
+    delete:
+      tags:
+        - "subscribe"
+      summary: "subscribes to the instance"
+      operationId: "unsubscribe"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "SubscriberDetails object that needs to be removed"
+          required: true
+          schema:
+            $ref: "#/definitions/Subscriber"
+      produces:
+        - "application/json"
+      consumes:
+        - "application/json"
+      responses:
+        200:
+          description: "OK"
+        401:
+          description: "unauthorized"
+        500:
+          description: "internal server error"
+definitions:
+  Subscriber:
+    description: "SubscriberDetails describes a new subscriber who wants to get updates from the instance"
+    type: "object"
+    properties:
+      url:
+        type: "string"
+        example: "foo.bar.com"
+      alias:
+        type: "string"
+        example: "John Wick"
+  Status:
+    description: "SubscriberDetails describes a new subscriber who wants to get updates from the instance"
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      media:
+        type: "string"
+        example: "https://foo.bar.com/myimg.png"
+      caption:
+        type: "string"
+        example: "My super cool picture"
