@@ -64,7 +64,7 @@ func (s *service) RemoveSubscriber(profile Profile) error {
 
 func (s *service) AddStatus(status StatusItem) error {
 	s.Owner.Status = append(s.Owner.Status, status)
-	err := Notify(s.Owner)
+	err := Notify(s.Owner, s.Subscribers)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (s *service) GetStatus() ([]ProfileStatus, error) {
 }
 
 func (s *service) SubscribeTo(profile Profile) error {
-	err := AddSubscription(Profile{URL:s.Owner.URL}, profile.URL)
+	err := AddSubscription(Profile{URL: s.Owner.URL}, profile.URL)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (s *service) SubscribeTo(profile Profile) error {
 }
 
 func (s *service) UnsubscribeFrom(profile Profile) error {
-	err := RemoveSubscription(Profile{URL:s.Owner.URL}, profile.URL)
+	err := RemoveSubscription(Profile{URL: s.Owner.URL}, profile.URL)
 	if err != nil {
 		return err
 	}
