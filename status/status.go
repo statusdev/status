@@ -1,71 +1,97 @@
 package status
 
-type Status struct {
+import (
+	"fmt"
+)
+
+type Profile struct {
+	URL string `json:"url"`
+}
+
+type ProfileStatus struct {
+	URL    string       `json:"url"`
+	Alias  string       `json:"alias"`
+	Status []StatusItem `json:"status"`
+}
+
+type StatusItem struct {
 	ID      string `json:"id"`
 	Media   string `json:"media"`
 	Caption string `json:"caption"`
 }
 
-type User struct {
-	URL    string   `json:"url"`
-	Alias  string   `json:"alias"`
-	Status []string `json:"status"`
-}
-
 type Service interface {
 	// subscribers
-	AddSubscriber(user User) error
-	RemoveSubscriber(user User) error
+	AddSubscriber(profile Profile) error
+	RemoveSubscriber(profile Profile) error
 
 	// our status
-	AddStatus(status Status) error
-	GetStatus() ([]Status, error)
+	AddStatus(status StatusItem) error
+
+	// our + subscribed status
+	// called by the client
+	GetStatus() ([]ProfileStatus, error)
 
 	// our subscriptions
-	SubscribeTo(user User) error
-	UnsubscribeTo(user User) error
+	// called by the client
+	SubscribeTo(profile Profile) error
+	UnsubscribeFrom(profile Profile) error
 
 	// receive updates
-	UpdateSubscriptionFrom(user User) error
-	GetSubscriptions() ([]User, error)
+	UpdateSubscriptionFrom(status ProfileStatus) error
 }
 
 type service struct {
-	Owner         User
-	Subscribers   []User
-	Subscriptions []User
+	Owner         ProfileStatus
+	State         map[string]ProfileStatus
+	Subscribers   map[string]Profile
+	Subscriptions map[string]Profile
 }
 
 func NewService() *service {
 	return new(service)
 }
 
-func (s *service) Subscribe(subscriber User) error {
-	// implement me
+func (s *service) AddSubscriber(profile Profile) error {
+	s.Subscribers[profile.URL] = profile
 	return nil
 }
 
-func (s *service) Unsubscribe(subscriber User) error {
-	// implement me
+func (s *service) RemoveSubscriber(profile Profile) error {
+	delete(s.Subscribers, profile.URL)
 	return nil
 }
 
-func (s *service) AddStatus(status Status) error {
-	// implement me
+func (s *service) AddStatus(status StatusItem) error {
+	// TODO inform other instances
+	s.Owner.Status = append(s.Owner.Status, status)
 	return nil
 }
 
-func (s *service) GetStatus() ([]Status, error) {
-	// implement me
-	return []Status{}, nil
+func (s *service) GetStatus() ([]ProfileStatus, error) {
+	state := make([]ProfileStatus, len(s.State))
+	for _, profileStatus := range s.State {
+		state = append(state, profileStatus)
+	}
+	return state, nil
 }
 
-func (s *service) AddNotifications(status Status) error {
-	// implement me
+func (s *service) SubscribeTo(profile Profile) error {
+	// TODO inform other instances
+	s.Subscriptions[profile.URL] = profile
 	return nil
 }
 
-func (s *service) GetNotifications() ([]Status, error) {
-	// implement me
-	return []Status{}, nil
+func (s *service) UnsubscribeFrom(profile Profile) error {
+	// TODO inform other instances
+	delete(s.Subscriptions, profile.URL)
+	return nil
+}
+
+func (s *service) UpdateSubscriptionFrom(status ProfileStatus) error {
+	if _, subscribed := s.Subscriptions[status.URL]; !subscribed {
+		fmt.Errorf("no subscription for %s", status.URL)
+	}
+	s.State[status.URL] = status
+	return nil
 }
