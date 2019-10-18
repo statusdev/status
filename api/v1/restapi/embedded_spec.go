@@ -123,10 +123,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/StatusItem"
-            }
+            "description": "OK"
           },
           "401": {
             "description": "unauthorized"
@@ -306,6 +303,10 @@ func init() {
           "items": {
             "$ref": "#/definitions/StatusItem"
           }
+        },
+        "url": {
+          "type": "string",
+          "example": "foo.bar.com"
         }
       }
     },
@@ -449,10 +450,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/StatusItem"
-            }
+            "description": "OK"
           },
           "401": {
             "description": "unauthorized"
@@ -632,6 +630,10 @@ func init() {
           "items": {
             "$ref": "#/definitions/StatusItem"
           }
+        },
+        "url": {
+          "type": "string",
+          "example": "foo.bar.com"
         }
       }
     },

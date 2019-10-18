@@ -37,8 +37,6 @@ paths:
       responses:
         200:
           description: "OK"
-          schema:
-            $ref: "#/definitions/StatusItem"
         401:
           description: "unauthorized"
         500:
@@ -194,6 +192,9 @@ definitions:
       alias:
         type: "string"
         example: "John Wick"
+      url:
+        type: "string"
+        example: "foo.bar.com"
       status:
         type: array
         items:

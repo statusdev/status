@@ -23,6 +23,9 @@ type ProfileStatus struct {
 
 	// status
 	Status []*StatusItem `json:"status"`
+
+	// url
+	URL string `json:"url,omitempty"`
 }
 
 // Validate validates this profile status

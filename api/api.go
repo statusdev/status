@@ -6,11 +6,13 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-openapi/loads"
 	restmiddleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/statusdev/status/api/v1/models"
 	"github.com/statusdev/status/api/v1/restapi"
 	"github.com/statusdev/status/api/v1/restapi/operations"
 	"github.com/statusdev/status/api/v1/restapi/operations/status"
-	"github.com/statusdev/status/api/v1/restapi/operations/subscribe"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscribers"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscribtions"
 	service "github.com/statusdev/status/status"
 	"net/http"
 )
@@ -41,22 +43,25 @@ func NewStatusAPI(logger log.Logger) (*chi.Mux, error) {
 	//svc = service.NewLoggingService(log.WithPrefix(logger, "service", "svc"), svc)
 
 	// namespaces
-	api.StatusGetStatusHandler = nil
-	api.StatusSetStatusHandler = nil
-	api.StatusNotifyHandler = nil
+	api.StatusGetStatusHandler = NewGetStatusHandler(svc)
+	api.StatusAddStatusHandler = NewAddStatusHandler(svc)
+	api.StatusNotifyHandler = NewNotifyHandler(svc)
 
-	api.SubscribeSubscribeHandler = nil
-	api.SubscribeUnsubscribeHandler = nil
+	api.SubscribersAddSubscriberHandler = NewAddSubscriberHandler(svc)
+	api.SubscribersRemoveSubscriberHandler = NewRemoveSubscriberHandler(svc)
+
+	api.SubscribtionsAddSubscriptionHandler = NewAddSubscriptionHandler(svc)
+	api.SubscribtionsRemoveSubscriptionHandler = NewRemoveSubscriptionHandler(svc)
 
 	router.Mount("/", api.Serve(nil))
 
 	return router, nil
 }
 
-func NewSetStatusHandler(svc service.Service) status.SetStatusHandlerFunc {
-	return func(params status.SetStatusParams) restmiddleware.Responder {
+func NewAddStatusHandler(svc service.Service) status.AddStatusHandlerFunc {
+	return func(params status.AddStatusParams) restmiddleware.Responder {
 
-		body := params.Media
+		// body := params.Media
 
 		// validate if media for status is valid
 
@@ -64,16 +69,15 @@ func NewSetStatusHandler(svc service.Service) status.SetStatusHandlerFunc {
 
 		// store new status item to backend
 
-		s := models.Status{
-			Caption: "testcaption",
-			Media:   "https://foo.bar.com",
-		}
+		err := svc.AddStatus(service.StatusItem{
+			Media:   "placeholder",
+			Caption: "foo bar",
+		})
 
-		res, err := svc.AddStatus(s)
 		if err != nil {
-			return status.NewGetStatusInternalServerError()
+			return status.NewAddStatusInternalServerError()
 		}
-		return status.NewSetStatusOK().WithPayload(convertStatus(res))
+		return status.NewAddStatusOK()
 	}
 }
 
@@ -83,33 +87,106 @@ func NewGetStatusHandler(svc service.Service) status.GetStatusHandlerFunc {
 		if err != nil {
 			return status.NewGetStatusInternalServerError()
 		}
-		return status.NewSetStatusOK().WithPayload(convertStatusList(res))
+		return status.NewGetStatusOK().WithPayload(ProfileStatusToModelList(res))
 	}
 }
-
-
-func NewS(svc service.Service) subscribe.SubscribeHandlerFunc {
-	return func(params status.NotifyParams) restmiddleware.Responder {
-		body := params.Body
-
-		svc.UpdateSubscriptionFrom()
-		if err != nil {
-			return status.NewGetStatusInternalServerError()
-		}
-		return status.NewSetStatusOK().WithPayload(convertStatusList(res))
-	}
-}
-
-
 
 func NewNotifyHandler(svc service.Service) status.NotifyHandlerFunc {
 	return func(params status.NotifyParams) restmiddleware.Responder {
 		body := params.Body
 
-		svc.UpdateSubscriptionFrom()
+		err := svc.UpdateSubscriptionFrom(service.ProfileStatus{
+			URL:    body.URL,
+			Alias:  body.Alias,
+			Status: ModeltoStatusItemList(body.Status),
+		})
 		if err != nil {
-			return status.NewGetStatusInternalServerError()
+			return status.NewNotifyInternalServerError()
 		}
-		return status.NewSetStatusOK().WithPayload(convertStatusList(res))
+		return status.NewNotifyOK()
 	}
+}
+
+func NewAddSubscriberHandler(svc service.Service) subscribers.AddSubscriberHandlerFunc {
+	return func(params subscribers.AddSubscriberParams) restmiddleware.Responder {
+		body := params.Body
+
+		err := svc.AddSubscriber(service.Profile{URL: body.URL})
+		if err != nil {
+			return subscribers.NewAddSubscriberInternalServerError()
+		}
+		return subscribers.NewAddSubscriberOK()
+	}
+}
+
+func NewRemoveSubscriberHandler(svc service.Service) subscribers.RemoveSubscriberHandlerFunc {
+	return func(params subscribers.RemoveSubscriberParams) restmiddleware.Responder {
+		body := params.Body
+
+		err := svc.RemoveSubscriber(service.Profile{URL: body.URL})
+		if err != nil {
+			return subscribers.NewRemoveSubscriberInternalServerError()
+		}
+		return subscribers.NewRemoveSubscriberOK()
+	}
+}
+
+func NewAddSubscriptionHandler(svc service.Service) subscribtions.AddSubscriptionHandlerFunc {
+	return func(params subscribtions.AddSubscriptionParams) restmiddleware.Responder {
+		body := params.Body
+
+		err := svc.SubscribeTo(service.Profile{URL: body.URL})
+		if err != nil {
+			return subscribtions.NewAddSubscriptionInternalServerError()
+		}
+		return subscribtions.NewAddSubscriptionOK()
+	}
+}
+
+func NewRemoveSubscriptionHandler(svc service.Service) subscribtions.RemoveSubscriptionHandlerFunc {
+	return func(params subscribtions.RemoveSubscriptionParams) restmiddleware.Responder {
+		body := params.Body
+
+		err := svc.UnsubscribeFrom(service.Profile{URL: body.URL})
+		if err != nil {
+			return subscribtions.NewRemoveSubscriptionInternalServerError()
+		}
+		return subscribers.NewRemoveSubscriberOK()
+	}
+}
+
+func ProfileStatusToModelList(items []*service.ProfileStatus) []*models.ProfileStatus {
+	var result []*models.ProfileStatus
+	for _, item := range items {
+		result = append(result, &models.ProfileStatus{
+			URL:    item.URL,
+			Alias:  item.Alias,
+			Status: StatusItemToModelList(item.Status),
+		})
+	}
+	return result
+}
+
+func StatusItemToModelList(items []service.StatusItem) []*models.StatusItem {
+	var result []*models.StatusItem
+	for _, item := range items {
+		result = append(result, &models.StatusItem{
+			ID:      strfmt.UUID(item.ID),
+			Media:   item.Media,
+			Caption: item.Caption,
+		})
+	}
+	return result
+}
+
+func ModeltoStatusItemList(items []*models.StatusItem) []service.StatusItem {
+	var result []service.StatusItem
+	for _, item := range items {
+		result = append(result, service.StatusItem{
+			ID:      string(item.ID),
+			Media:   item.Media,
+			Caption: item.Caption,
+		})
+	}
+	return result
 }
