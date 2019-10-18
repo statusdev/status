@@ -13,9 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Status SubscriberDetails describes a new subscriber who wants to get updates from the instance
-// swagger:model Status
-type Status struct {
+// StatusItem SubscriberDetails describes a new subscriber who wants to get updates from the instance
+// swagger:model StatusItem
+type StatusItem struct {
 
 	// caption
 	Caption string `json:"caption,omitempty"`
@@ -28,8 +28,8 @@ type Status struct {
 	Media string `json:"media,omitempty"`
 }
 
-// Validate validates this status
-func (m *Status) Validate(formats strfmt.Registry) error {
+// Validate validates this status item
+func (m *StatusItem) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
@@ -42,7 +42,7 @@ func (m *Status) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Status) validateID(formats strfmt.Registry) error {
+func (m *StatusItem) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -56,7 +56,7 @@ func (m *Status) validateID(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Status) MarshalBinary() ([]byte, error) {
+func (m *StatusItem) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -64,8 +64,8 @@ func (m *Status) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Status) UnmarshalBinary(b []byte) error {
-	var res Status
+func (m *StatusItem) UnmarshalBinary(b []byte) error {
+	var res StatusItem
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

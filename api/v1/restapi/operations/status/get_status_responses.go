@@ -25,7 +25,7 @@ type GetStatusOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []*models.Status `json:"body,omitempty"`
+	Payload []*models.ProfileStatus `json:"body,omitempty"`
 }
 
 // NewGetStatusOK creates GetStatusOK with default headers values
@@ -35,13 +35,13 @@ func NewGetStatusOK() *GetStatusOK {
 }
 
 // WithPayload adds the payload to the get status o k response
-func (o *GetStatusOK) WithPayload(payload []*models.Status) *GetStatusOK {
+func (o *GetStatusOK) WithPayload(payload []*models.ProfileStatus) *GetStatusOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get status o k response
-func (o *GetStatusOK) SetPayload(payload []*models.Status) {
+func (o *GetStatusOK) SetPayload(payload []*models.ProfileStatus) {
 	o.Payload = payload
 }
 
@@ -52,7 +52,7 @@ func (o *GetStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = make([]*models.Status, 0, 50)
+		payload = make([]*models.ProfileStatus, 0, 50)
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

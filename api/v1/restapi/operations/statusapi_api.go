@@ -20,7 +20,8 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/statusdev/status/api/v1/restapi/operations/status"
-	"github.com/statusdev/status/api/v1/restapi/operations/subscribe"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscribers"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscribtions"
 )
 
 // NewStatusapiAPI creates a new Statusapi instance
@@ -41,20 +42,26 @@ func NewStatusapiAPI(spec *loads.Document) *StatusapiAPI {
 		JSONConsumer:          runtime.JSONConsumer(),
 		MultipartformConsumer: runtime.DiscardConsumer,
 		JSONProducer:          runtime.JSONProducer(),
+		StatusAddStatusHandler: status.AddStatusHandlerFunc(func(params status.AddStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation StatusAddStatus has not yet been implemented")
+		}),
+		SubscribersAddSubscriberHandler: subscribers.AddSubscriberHandlerFunc(func(params subscribers.AddSubscriberParams) middleware.Responder {
+			return middleware.NotImplemented("operation SubscribersAddSubscriber has not yet been implemented")
+		}),
+		SubscribtionsAddSubscriptionHandler: subscribtions.AddSubscriptionHandlerFunc(func(params subscribtions.AddSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation SubscribtionsAddSubscription has not yet been implemented")
+		}),
 		StatusGetStatusHandler: status.GetStatusHandlerFunc(func(params status.GetStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation StatusGetStatus has not yet been implemented")
 		}),
 		StatusNotifyHandler: status.NotifyHandlerFunc(func(params status.NotifyParams) middleware.Responder {
 			return middleware.NotImplemented("operation StatusNotify has not yet been implemented")
 		}),
-		StatusSetStatusHandler: status.SetStatusHandlerFunc(func(params status.SetStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation StatusSetStatus has not yet been implemented")
+		SubscribersRemoveSubscriberHandler: subscribers.RemoveSubscriberHandlerFunc(func(params subscribers.RemoveSubscriberParams) middleware.Responder {
+			return middleware.NotImplemented("operation SubscribersRemoveSubscriber has not yet been implemented")
 		}),
-		SubscribeSubscribeHandler: subscribe.SubscribeHandlerFunc(func(params subscribe.SubscribeParams) middleware.Responder {
-			return middleware.NotImplemented("operation SubscribeSubscribe has not yet been implemented")
-		}),
-		SubscribeUnsubscribeHandler: subscribe.UnsubscribeHandlerFunc(func(params subscribe.UnsubscribeParams) middleware.Responder {
-			return middleware.NotImplemented("operation SubscribeUnsubscribe has not yet been implemented")
+		SubscribtionsRemoveSubscriptionHandler: subscribtions.RemoveSubscriptionHandlerFunc(func(params subscribtions.RemoveSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation SubscribtionsRemoveSubscription has not yet been implemented")
 		}),
 	}
 }
@@ -89,16 +96,20 @@ type StatusapiAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// StatusAddStatusHandler sets the operation handler for the add status operation
+	StatusAddStatusHandler status.AddStatusHandler
+	// SubscribersAddSubscriberHandler sets the operation handler for the add subscriber operation
+	SubscribersAddSubscriberHandler subscribers.AddSubscriberHandler
+	// SubscribtionsAddSubscriptionHandler sets the operation handler for the add subscription operation
+	SubscribtionsAddSubscriptionHandler subscribtions.AddSubscriptionHandler
 	// StatusGetStatusHandler sets the operation handler for the get status operation
 	StatusGetStatusHandler status.GetStatusHandler
 	// StatusNotifyHandler sets the operation handler for the notify operation
 	StatusNotifyHandler status.NotifyHandler
-	// StatusSetStatusHandler sets the operation handler for the set status operation
-	StatusSetStatusHandler status.SetStatusHandler
-	// SubscribeSubscribeHandler sets the operation handler for the subscribe operation
-	SubscribeSubscribeHandler subscribe.SubscribeHandler
-	// SubscribeUnsubscribeHandler sets the operation handler for the unsubscribe operation
-	SubscribeUnsubscribeHandler subscribe.UnsubscribeHandler
+	// SubscribersRemoveSubscriberHandler sets the operation handler for the remove subscriber operation
+	SubscribersRemoveSubscriberHandler subscribers.RemoveSubscriberHandler
+	// SubscribtionsRemoveSubscriptionHandler sets the operation handler for the remove subscription operation
+	SubscribtionsRemoveSubscriptionHandler subscribtions.RemoveSubscriptionHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -166,6 +177,18 @@ func (o *StatusapiAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.StatusAddStatusHandler == nil {
+		unregistered = append(unregistered, "status.AddStatusHandler")
+	}
+
+	if o.SubscribersAddSubscriberHandler == nil {
+		unregistered = append(unregistered, "subscribers.AddSubscriberHandler")
+	}
+
+	if o.SubscribtionsAddSubscriptionHandler == nil {
+		unregistered = append(unregistered, "subscribtions.AddSubscriptionHandler")
+	}
+
 	if o.StatusGetStatusHandler == nil {
 		unregistered = append(unregistered, "status.GetStatusHandler")
 	}
@@ -174,16 +197,12 @@ func (o *StatusapiAPI) Validate() error {
 		unregistered = append(unregistered, "status.NotifyHandler")
 	}
 
-	if o.StatusSetStatusHandler == nil {
-		unregistered = append(unregistered, "status.SetStatusHandler")
+	if o.SubscribersRemoveSubscriberHandler == nil {
+		unregistered = append(unregistered, "subscribers.RemoveSubscriberHandler")
 	}
 
-	if o.SubscribeSubscribeHandler == nil {
-		unregistered = append(unregistered, "subscribe.SubscribeHandler")
-	}
-
-	if o.SubscribeUnsubscribeHandler == nil {
-		unregistered = append(unregistered, "subscribe.UnsubscribeHandler")
+	if o.SubscribtionsRemoveSubscriptionHandler == nil {
+		unregistered = append(unregistered, "subscribtions.RemoveSubscriptionHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -287,6 +306,21 @@ func (o *StatusapiAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/status"] = status.NewAddStatus(o.context, o.StatusAddStatusHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/subscribers"] = subscribers.NewAddSubscriber(o.context, o.SubscribersAddSubscriberHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/subscribtions"] = subscribtions.NewAddSubscription(o.context, o.SubscribtionsAddSubscriptionHandler)
+
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -297,20 +331,15 @@ func (o *StatusapiAPI) initHandlerCache() {
 	}
 	o.handlers["POST"]["/notifications"] = status.NewNotify(o.context, o.StatusNotifyHandler)
 
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/status"] = status.NewSetStatus(o.context, o.StatusSetStatusHandler)
-
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/subscribers"] = subscribe.NewSubscribe(o.context, o.SubscribeSubscribeHandler)
+	o.handlers["DELETE"]["/subscribers"] = subscribers.NewRemoveSubscriber(o.context, o.SubscribersRemoveSubscriberHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/subscribers"] = subscribe.NewUnsubscribe(o.context, o.SubscribeUnsubscribeHandler)
+	o.handlers["DELETE"]["/subscribtions"] = subscribtions.NewRemoveSubscription(o.context, o.SubscribtionsRemoveSubscriptionHandler)
 
 }
 

@@ -47,16 +47,16 @@ func init() {
         "tags": [
           "status"
         ],
-        "summary": "get the current status to the instance",
+        "summary": "allows remote instances to post their status to our instance",
         "operationId": "notify",
         "parameters": [
           {
-            "description": "SubscriberDetails object that needs to be accepted",
+            "description": "Remote instances can post to this endpoint to send their status to us",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Status"
+              "$ref": "#/definitions/ProfileStatus"
             }
           }
         ],
@@ -75,9 +75,6 @@ func init() {
     },
     "/status": {
       "get": {
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -86,24 +83,13 @@ func init() {
         ],
         "summary": "get the current status to the instance",
         "operationId": "getStatus",
-        "parameters": [
-          {
-            "description": "SubscriberDetails object that needs to be accepted",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Status"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Status"
+                "$ref": "#/definitions/ProfileStatus"
               }
             }
           },
@@ -126,7 +112,7 @@ func init() {
           "status"
         ],
         "summary": "add a new status to the instance",
-        "operationId": "setStatus",
+        "operationId": "addStatus",
         "parameters": [
           {
             "type": "file",
@@ -139,7 +125,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Status"
+              "$ref": "#/definitions/StatusItem"
             }
           },
           "401": {
@@ -160,18 +146,18 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribe"
+          "subscribers"
         ],
         "summary": "subscribes to the instance",
-        "operationId": "subscribe",
+        "operationId": "addSubscriber",
         "parameters": [
           {
-            "description": "SubscriberDetails object that needs to be accepted",
+            "description": "User information that needs to be added to our subscribers list",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Subscriber"
+              "$ref": "#/definitions/Profile"
             }
           }
         ],
@@ -195,18 +181,90 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribe"
+          "subscribers"
         ],
         "summary": "subscribes to the instance",
-        "operationId": "unsubscribe",
+        "operationId": "removeSubscriber",
         "parameters": [
           {
-            "description": "SubscriberDetails object that needs to be removed",
+            "description": "User information that needs to be removed from our subscribers list",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Subscriber"
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "unauthorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/subscribtions": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "subscribtions"
+        ],
+        "summary": "subscribes to a remote instance",
+        "operationId": "addSubscription",
+        "parameters": [
+          {
+            "description": "User information that needs to be added to our subscriptions list",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "unauthorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "delete": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "subscribtions"
+        ],
+        "summary": "unsubscribe from a remote  instance",
+        "operationId": "removeSubscription",
+        "parameters": [
+          {
+            "description": "User information that needs to be removed from our subscriptions list",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Profile"
             }
           }
         ],
@@ -225,7 +283,33 @@ func init() {
     }
   },
   "definitions": {
-    "Status": {
+    "Profile": {
+      "description": "Profile describes a connection between two instances.",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "example": "foo.bar.com"
+        }
+      }
+    },
+    "ProfileStatus": {
+      "description": "SubscriberDetails describes a new subscriber who wants to get updates from the instance",
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string",
+          "example": "John Wick"
+        },
+        "status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StatusItem"
+          }
+        }
+      }
+    },
+    "StatusItem": {
       "description": "SubscriberDetails describes a new subscriber who wants to get updates from the instance",
       "type": "object",
       "properties": {
@@ -242,26 +326,16 @@ func init() {
           "example": "https://foo.bar.com/myimg.png"
         }
       }
-    },
-    "Subscriber": {
-      "description": "SubscriberDetails describes a new subscriber who wants to get updates from the instance",
-      "type": "object",
-      "properties": {
-        "alias": {
-          "type": "string",
-          "example": "John Wick"
-        },
-        "url": {
-          "type": "string",
-          "example": "foo.bar.com"
-        }
-      }
     }
   },
   "tags": [
     {
-      "description": "provides endpoints to subscribe to an instance",
-      "name": "subscribe"
+      "description": "provides endpoints to subscribe to the instance e.g. others to us",
+      "name": "subscribers"
+    },
+    {
+      "description": "provides endpoints to subscribe to remote instances e.g. we to others",
+      "name": "subscribtions"
     },
     {
       "description": "provides endpoints to interact with an instance status",
@@ -299,16 +373,16 @@ func init() {
         "tags": [
           "status"
         ],
-        "summary": "get the current status to the instance",
+        "summary": "allows remote instances to post their status to our instance",
         "operationId": "notify",
         "parameters": [
           {
-            "description": "SubscriberDetails object that needs to be accepted",
+            "description": "Remote instances can post to this endpoint to send their status to us",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Status"
+              "$ref": "#/definitions/ProfileStatus"
             }
           }
         ],
@@ -327,9 +401,6 @@ func init() {
     },
     "/status": {
       "get": {
-        "consumes": [
-          "application/json"
-        ],
         "produces": [
           "application/json"
         ],
@@ -338,24 +409,13 @@ func init() {
         ],
         "summary": "get the current status to the instance",
         "operationId": "getStatus",
-        "parameters": [
-          {
-            "description": "SubscriberDetails object that needs to be accepted",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Status"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/Status"
+                "$ref": "#/definitions/ProfileStatus"
               }
             }
           },
@@ -378,7 +438,7 @@ func init() {
           "status"
         ],
         "summary": "add a new status to the instance",
-        "operationId": "setStatus",
+        "operationId": "addStatus",
         "parameters": [
           {
             "type": "file",
@@ -391,7 +451,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Status"
+              "$ref": "#/definitions/StatusItem"
             }
           },
           "401": {
@@ -412,18 +472,18 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribe"
+          "subscribers"
         ],
         "summary": "subscribes to the instance",
-        "operationId": "subscribe",
+        "operationId": "addSubscriber",
         "parameters": [
           {
-            "description": "SubscriberDetails object that needs to be accepted",
+            "description": "User information that needs to be added to our subscribers list",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Subscriber"
+              "$ref": "#/definitions/Profile"
             }
           }
         ],
@@ -447,18 +507,90 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribe"
+          "subscribers"
         ],
         "summary": "subscribes to the instance",
-        "operationId": "unsubscribe",
+        "operationId": "removeSubscriber",
         "parameters": [
           {
-            "description": "SubscriberDetails object that needs to be removed",
+            "description": "User information that needs to be removed from our subscribers list",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Subscriber"
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "unauthorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/subscribtions": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "subscribtions"
+        ],
+        "summary": "subscribes to a remote instance",
+        "operationId": "addSubscription",
+        "parameters": [
+          {
+            "description": "User information that needs to be added to our subscriptions list",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Profile"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "unauthorized"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      },
+      "delete": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "subscribtions"
+        ],
+        "summary": "unsubscribe from a remote  instance",
+        "operationId": "removeSubscription",
+        "parameters": [
+          {
+            "description": "User information that needs to be removed from our subscriptions list",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Profile"
             }
           }
         ],
@@ -477,7 +609,33 @@ func init() {
     }
   },
   "definitions": {
-    "Status": {
+    "Profile": {
+      "description": "Profile describes a connection between two instances.",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "example": "foo.bar.com"
+        }
+      }
+    },
+    "ProfileStatus": {
+      "description": "SubscriberDetails describes a new subscriber who wants to get updates from the instance",
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string",
+          "example": "John Wick"
+        },
+        "status": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StatusItem"
+          }
+        }
+      }
+    },
+    "StatusItem": {
       "description": "SubscriberDetails describes a new subscriber who wants to get updates from the instance",
       "type": "object",
       "properties": {
@@ -494,26 +652,16 @@ func init() {
           "example": "https://foo.bar.com/myimg.png"
         }
       }
-    },
-    "Subscriber": {
-      "description": "SubscriberDetails describes a new subscriber who wants to get updates from the instance",
-      "type": "object",
-      "properties": {
-        "alias": {
-          "type": "string",
-          "example": "John Wick"
-        },
-        "url": {
-          "type": "string",
-          "example": "foo.bar.com"
-        }
-      }
     }
   },
   "tags": [
     {
-      "description": "provides endpoints to subscribe to an instance",
-      "name": "subscribe"
+      "description": "provides endpoints to subscribe to the instance e.g. others to us",
+      "name": "subscribers"
+    },
+    {
+      "description": "provides endpoints to subscribe to remote instances e.g. we to others",
+      "name": "subscribtions"
     },
     {
       "description": "provides endpoints to interact with an instance status",

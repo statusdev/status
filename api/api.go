@@ -10,6 +10,7 @@ import (
 	"github.com/statusdev/status/api/v1/restapi"
 	"github.com/statusdev/status/api/v1/restapi/operations"
 	"github.com/statusdev/status/api/v1/restapi/operations/status"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscribe"
 	service "github.com/statusdev/status/status"
 	"net/http"
 )
@@ -85,6 +86,20 @@ func NewGetStatusHandler(svc service.Service) status.GetStatusHandlerFunc {
 		return status.NewSetStatusOK().WithPayload(convertStatusList(res))
 	}
 }
+
+
+func NewS(svc service.Service) subscribe.SubscribeHandlerFunc {
+	return func(params status.NotifyParams) restmiddleware.Responder {
+		body := params.Body
+
+		svc.UpdateSubscriptionFrom()
+		if err != nil {
+			return status.NewGetStatusInternalServerError()
+		}
+		return status.NewSetStatusOK().WithPayload(convertStatusList(res))
+	}
+}
+
 
 
 func NewNotifyHandler(svc service.Service) status.NotifyHandlerFunc {

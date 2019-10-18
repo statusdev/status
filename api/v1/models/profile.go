@@ -11,24 +11,21 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Subscriber SubscriberDetails describes a new subscriber who wants to get updates from the instance
-// swagger:model Subscriber
-type Subscriber struct {
-
-	// alias
-	Alias string `json:"alias,omitempty"`
+// Profile Profile describes a connection between two instances.
+// swagger:model Profile
+type Profile struct {
 
 	// url
 	URL string `json:"url,omitempty"`
 }
 
-// Validate validates this subscriber
-func (m *Subscriber) Validate(formats strfmt.Registry) error {
+// Validate validates this profile
+func (m *Profile) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *Subscriber) MarshalBinary() ([]byte, error) {
+func (m *Profile) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -36,8 +33,8 @@ func (m *Subscriber) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Subscriber) UnmarshalBinary(b []byte) error {
-	var res Subscriber
+func (m *Profile) UnmarshalBinary(b []byte) error {
+	var res Profile
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -31,7 +31,7 @@ func NewNotify(ctx *middleware.Context, handler NotifyHandler) *Notify {
 
 /*Notify swagger:route POST /notifications status notify
 
-get the current status to the instance
+allows remote instances to post their status to our instance
 
 */
 type Notify struct {

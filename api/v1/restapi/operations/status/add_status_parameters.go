@@ -15,18 +15,18 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 )
 
-// NewSetStatusParams creates a new SetStatusParams object
+// NewAddStatusParams creates a new AddStatusParams object
 // no default values defined in spec.
-func NewSetStatusParams() SetStatusParams {
+func NewAddStatusParams() AddStatusParams {
 
-	return SetStatusParams{}
+	return AddStatusParams{}
 }
 
-// SetStatusParams contains all the bound params for the set status operation
+// AddStatusParams contains all the bound params for the add status operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters setStatus
-type SetStatusParams struct {
+// swagger:parameters addStatus
+type AddStatusParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -40,8 +40,8 @@ type SetStatusParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewSetStatusParams() beforehand.
-func (o *SetStatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewAddStatusParams() beforehand.
+func (o *AddStatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -74,6 +74,6 @@ func (o *SetStatusParams) BindRequest(r *http.Request, route *middleware.Matched
 // bindMedia binds file parameter Media.
 //
 // The only supported validations on files are MinLength and MaxLength
-func (o *SetStatusParams) bindMedia(file multipart.File, header *multipart.FileHeader) error {
+func (o *AddStatusParams) bindMedia(file multipart.File, header *multipart.FileHeader) error {
 	return nil
 }

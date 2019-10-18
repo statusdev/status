@@ -12,7 +12,8 @@ import (
 
 	"github.com/statusdev/status/api/v1/restapi/operations"
 	"github.com/statusdev/status/api/v1/restapi/operations/status"
-	"github.com/statusdev/status/api/v1/restapi/operations/subscribe"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscribers"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscribtions"
 )
 
 //go:generate swagger generate server --target ../../v1 --name Statusapi --spec ../../../swagger.yaml --exclude-main
@@ -37,6 +38,21 @@ func configureAPI(api *operations.StatusapiAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.StatusAddStatusHandler == nil {
+		api.StatusAddStatusHandler = status.AddStatusHandlerFunc(func(params status.AddStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation status.AddStatus has not yet been implemented")
+		})
+	}
+	if api.SubscribersAddSubscriberHandler == nil {
+		api.SubscribersAddSubscriberHandler = subscribers.AddSubscriberHandlerFunc(func(params subscribers.AddSubscriberParams) middleware.Responder {
+			return middleware.NotImplemented("operation subscribers.AddSubscriber has not yet been implemented")
+		})
+	}
+	if api.SubscribtionsAddSubscriptionHandler == nil {
+		api.SubscribtionsAddSubscriptionHandler = subscribtions.AddSubscriptionHandlerFunc(func(params subscribtions.AddSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation subscribtions.AddSubscription has not yet been implemented")
+		})
+	}
 	if api.StatusGetStatusHandler == nil {
 		api.StatusGetStatusHandler = status.GetStatusHandlerFunc(func(params status.GetStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation status.GetStatus has not yet been implemented")
@@ -47,19 +63,14 @@ func configureAPI(api *operations.StatusapiAPI) http.Handler {
 			return middleware.NotImplemented("operation status.Notify has not yet been implemented")
 		})
 	}
-	if api.StatusSetStatusHandler == nil {
-		api.StatusSetStatusHandler = status.SetStatusHandlerFunc(func(params status.SetStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation status.SetStatus has not yet been implemented")
+	if api.SubscribersRemoveSubscriberHandler == nil {
+		api.SubscribersRemoveSubscriberHandler = subscribers.RemoveSubscriberHandlerFunc(func(params subscribers.RemoveSubscriberParams) middleware.Responder {
+			return middleware.NotImplemented("operation subscribers.RemoveSubscriber has not yet been implemented")
 		})
 	}
-	if api.SubscribeSubscribeHandler == nil {
-		api.SubscribeSubscribeHandler = subscribe.SubscribeHandlerFunc(func(params subscribe.SubscribeParams) middleware.Responder {
-			return middleware.NotImplemented("operation subscribe.Subscribe has not yet been implemented")
-		})
-	}
-	if api.SubscribeUnsubscribeHandler == nil {
-		api.SubscribeUnsubscribeHandler = subscribe.UnsubscribeHandlerFunc(func(params subscribe.UnsubscribeParams) middleware.Responder {
-			return middleware.NotImplemented("operation subscribe.Unsubscribe has not yet been implemented")
+	if api.SubscribtionsRemoveSubscriptionHandler == nil {
+		api.SubscribtionsRemoveSubscriptionHandler = subscribtions.RemoveSubscriptionHandlerFunc(func(params subscribtions.RemoveSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation subscribtions.RemoveSubscription has not yet been implemented")
 		})
 	}
 
