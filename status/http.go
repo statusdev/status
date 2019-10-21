@@ -38,7 +38,7 @@ func AddSubscription(profile Profile, server string) error {
 func Notify(status ProfileStatus, subscribers map[string]Profile) error {
 	errors := make([]error, 0)
 	for _, subscriber := range subscribers {
-		res, err := postRequest(status, subscriber.URL+"/subscribers")
+		res, err := postRequest(status, subscriber.URL+"/notifications")
 		if err != nil || res.StatusCode > 200 {
 			errors = append(errors, err)
 			continue
