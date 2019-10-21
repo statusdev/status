@@ -81,7 +81,7 @@ func (s *service) AddStatus(status StatusItem) error {
 }
 
 func (s *service) GetStatus() ([]*ProfileStatus, error) {
-	state := make([]*ProfileStatus, len(s.State))
+	state := make([]*ProfileStatus, 0, len(s.State))
 	for _, profileStatus := range s.State {
 		state = append(state, &profileStatus)
 	}
