@@ -206,7 +206,7 @@ func init() {
         }
       }
     },
-    "/subscribtions": {
+    "/subscriptions": {
       "post": {
         "consumes": [
           "application/json"
@@ -215,7 +215,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribtions"
+          "subscriptions"
         ],
         "summary": "subscribes to a remote instance",
         "operationId": "addSubscription",
@@ -250,7 +250,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribtions"
+          "subscriptions"
         ],
         "summary": "unsubscribe from a remote  instance",
         "operationId": "removeSubscription",
@@ -336,7 +336,7 @@ func init() {
     },
     {
       "description": "provides endpoints to subscribe to remote instances e.g. we to others",
-      "name": "subscribtions"
+      "name": "subscriptions"
     },
     {
       "description": "provides endpoints to interact with an instance status",
@@ -533,7 +533,7 @@ func init() {
         }
       }
     },
-    "/subscribtions": {
+    "/subscriptions": {
       "post": {
         "consumes": [
           "application/json"
@@ -542,7 +542,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribtions"
+          "subscriptions"
         ],
         "summary": "subscribes to a remote instance",
         "operationId": "addSubscription",
@@ -577,7 +577,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "subscribtions"
+          "subscriptions"
         ],
         "summary": "unsubscribe from a remote  instance",
         "operationId": "removeSubscription",
@@ -663,7 +663,7 @@ func init() {
     },
     {
       "description": "provides endpoints to subscribe to remote instances e.g. we to others",
-      "name": "subscribtions"
+      "name": "subscriptions"
     },
     {
       "description": "provides endpoints to interact with an instance status",

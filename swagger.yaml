@@ -12,7 +12,7 @@ basePath: "/"
 tags:
   - name: "subscribers"
     description: "provides endpoints to subscribe to the instance e.g. others to us"
-  - name: "subscribtions"
+  - name: "subscriptions"
     description: "provides endpoints to subscribe to remote instances e.g. we to others"
   - name: "status"
     description: "provides endpoints to interact with an instance status"
@@ -130,10 +130,10 @@ paths:
           description: "unauthorized"
         500:
           description: "internal server error"
-  /subscribtions:
+  /subscriptions:
     post:
       tags:
-        - "subscribtions"
+        - "subscriptions"
       summary: "subscribes to a remote instance"
       operationId: "addSubscription"
       parameters:
@@ -156,7 +156,7 @@ paths:
           description: "internal server error"
     delete:
       tags:
-        - "subscribtions"
+        - "subscriptions"
       summary: "unsubscribe from a remote  instance"
       operationId: "removeSubscription"
       parameters:

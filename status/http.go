@@ -11,7 +11,11 @@ import (
 func RemoveSubscription(profile Profile, server string) error {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(profile)
-	res, _ := http.NewRequest(http.MethodDelete, server+"/subscribers", b)
+	res, err := http.NewRequest(http.MethodDelete, server+"/subscribers", b)
+	if err != nil {
+		return err
+	}
+
 	if res.Response.StatusCode > 200 {
 		return fmt.Errorf("Received status %s from %s", res.Response.Status, server)
 	}
@@ -20,7 +24,11 @@ func RemoveSubscription(profile Profile, server string) error {
 
 // Add our server to a subscription list of a remote server
 func AddSubscription(profile Profile, server string) error {
-	res := postRequest(profile, server+"/subscribers")
+	fmt.Printf(server)
+	res, err := postRequest(profile, server+"/subscribers")
+	if err != nil {
+		return err
+	}
 	if res.StatusCode > 200 {
 		return fmt.Errorf("received status %s from %s", res.Status, server)
 	}
@@ -28,12 +36,12 @@ func AddSubscription(profile Profile, server string) error {
 }
 
 func Notify(status ProfileStatus, subscribers map[string]Profile) error {
-	errors := make([]string, 0)
+	errors := make([]error, 0)
 	for _, subscriber := range subscribers {
-		res := postRequest(status, subscriber.URL+"/subscribers")
-		if res.StatusCode > 200 {
-			message := fmt.Sprintf("received status %s from %s", res.Status, subscriber.URL)
-			errors = append(errors, message)
+		res, err := postRequest(status, subscriber.URL+"/subscribers")
+		if err != nil || res.StatusCode > 200 {
+			errors = append(errors, err)
+			continue
 		}
 	}
 	if len(errors) > 0 {
@@ -42,9 +50,12 @@ func Notify(status ProfileStatus, subscribers map[string]Profile) error {
 	return nil
 }
 
-func postRequest(obj interface{}, url string) *http.Response {
+func postRequest(obj interface{}, url string) (	*http.Response, error) {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(obj)
-	res, _ := http.Post(url, "application/json; charset=utf-8", b)
-	return res
+	res, err := http.Post(url, "application/json; charset=utf-8", b)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }

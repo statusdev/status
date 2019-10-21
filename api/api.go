@@ -12,12 +12,12 @@ import (
 	"github.com/statusdev/status/api/v1/restapi/operations"
 	"github.com/statusdev/status/api/v1/restapi/operations/status"
 	"github.com/statusdev/status/api/v1/restapi/operations/subscribers"
-	"github.com/statusdev/status/api/v1/restapi/operations/subscribtions"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscriptions"
 	service "github.com/statusdev/status/status"
 	"net/http"
 )
 
-func NewStatusAPI(logger log.Logger) (*chi.Mux, error) {
+func NewStatusAPI(publicAddr string, alias string, logger log.Logger) (*chi.Mux, error) {
 
 	router := chi.NewRouter()
 
@@ -39,7 +39,7 @@ func NewStatusAPI(logger log.Logger) (*chi.Mux, error) {
 	// initialize services
 	var svc service.Service
 
-	svc = service.NewService()
+	svc = service.NewService(publicAddr, alias)
 	//svc = service.NewLoggingService(log.WithPrefix(logger, "service", "svc"), svc)
 
 	// namespaces
@@ -50,8 +50,8 @@ func NewStatusAPI(logger log.Logger) (*chi.Mux, error) {
 	api.SubscribersAddSubscriberHandler = NewAddSubscriberHandler(svc)
 	api.SubscribersRemoveSubscriberHandler = NewRemoveSubscriberHandler(svc)
 
-	api.SubscribtionsAddSubscriptionHandler = NewAddSubscriptionHandler(svc)
-	api.SubscribtionsRemoveSubscriptionHandler = NewRemoveSubscriptionHandler(svc)
+	api.SubscriptionsAddSubscriptionHandler = NewAddSubscriptionHandler(svc)
+	api.SubscriptionsRemoveSubscriptionHandler = NewRemoveSubscriptionHandler(svc)
 
 	router.Mount("/", api.Serve(nil))
 
@@ -75,6 +75,8 @@ func NewAddStatusHandler(svc service.Service) status.AddStatusHandlerFunc {
 		})
 
 		if err != nil {
+			fmt.Print("AAAAAAAAAAAAAAAAAAAAAAa")
+			fmt.Printf("%s", err)
 			return status.NewAddStatusInternalServerError()
 		}
 		return status.NewAddStatusOK()
@@ -131,25 +133,25 @@ func NewRemoveSubscriberHandler(svc service.Service) subscribers.RemoveSubscribe
 	}
 }
 
-func NewAddSubscriptionHandler(svc service.Service) subscribtions.AddSubscriptionHandlerFunc {
-	return func(params subscribtions.AddSubscriptionParams) restmiddleware.Responder {
+func NewAddSubscriptionHandler(svc service.Service) subscriptions.AddSubscriptionHandlerFunc {
+	return func(params subscriptions.AddSubscriptionParams) restmiddleware.Responder {
 		body := params.Body
 
 		err := svc.SubscribeTo(service.Profile{URL: body.URL})
 		if err != nil {
-			return subscribtions.NewAddSubscriptionInternalServerError()
+			return subscriptions.NewAddSubscriptionInternalServerError()
 		}
-		return subscribtions.NewAddSubscriptionOK()
+		return subscriptions.NewAddSubscriptionOK()
 	}
 }
 
-func NewRemoveSubscriptionHandler(svc service.Service) subscribtions.RemoveSubscriptionHandlerFunc {
-	return func(params subscribtions.RemoveSubscriptionParams) restmiddleware.Responder {
+func NewRemoveSubscriptionHandler(svc service.Service) subscriptions.RemoveSubscriptionHandlerFunc {
+	return func(params subscriptions.RemoveSubscriptionParams) restmiddleware.Responder {
 		body := params.Body
 
 		err := svc.UnsubscribeFrom(service.Profile{URL: body.URL})
 		if err != nil {
-			return subscribtions.NewRemoveSubscriptionInternalServerError()
+			return subscriptions.NewRemoveSubscriptionInternalServerError()
 		}
 		return subscribers.NewRemoveSubscriberOK()
 	}

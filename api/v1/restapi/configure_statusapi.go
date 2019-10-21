@@ -13,7 +13,7 @@ import (
 	"github.com/statusdev/status/api/v1/restapi/operations"
 	"github.com/statusdev/status/api/v1/restapi/operations/status"
 	"github.com/statusdev/status/api/v1/restapi/operations/subscribers"
-	"github.com/statusdev/status/api/v1/restapi/operations/subscribtions"
+	"github.com/statusdev/status/api/v1/restapi/operations/subscriptions"
 )
 
 //go:generate swagger generate server --target ../../v1 --name Statusapi --spec ../../../swagger.yaml --exclude-main
@@ -48,9 +48,9 @@ func configureAPI(api *operations.StatusapiAPI) http.Handler {
 			return middleware.NotImplemented("operation subscribers.AddSubscriber has not yet been implemented")
 		})
 	}
-	if api.SubscribtionsAddSubscriptionHandler == nil {
-		api.SubscribtionsAddSubscriptionHandler = subscribtions.AddSubscriptionHandlerFunc(func(params subscribtions.AddSubscriptionParams) middleware.Responder {
-			return middleware.NotImplemented("operation subscribtions.AddSubscription has not yet been implemented")
+	if api.SubscriptionsAddSubscriptionHandler == nil {
+		api.SubscriptionsAddSubscriptionHandler = subscriptions.AddSubscriptionHandlerFunc(func(params subscriptions.AddSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation subscriptions.AddSubscription has not yet been implemented")
 		})
 	}
 	if api.StatusGetStatusHandler == nil {
@@ -68,9 +68,9 @@ func configureAPI(api *operations.StatusapiAPI) http.Handler {
 			return middleware.NotImplemented("operation subscribers.RemoveSubscriber has not yet been implemented")
 		})
 	}
-	if api.SubscribtionsRemoveSubscriptionHandler == nil {
-		api.SubscribtionsRemoveSubscriptionHandler = subscribtions.RemoveSubscriptionHandlerFunc(func(params subscribtions.RemoveSubscriptionParams) middleware.Responder {
-			return middleware.NotImplemented("operation subscribtions.RemoveSubscription has not yet been implemented")
+	if api.SubscriptionsRemoveSubscriptionHandler == nil {
+		api.SubscriptionsRemoveSubscriptionHandler = subscriptions.RemoveSubscriptionHandlerFunc(func(params subscriptions.RemoveSubscriptionParams) middleware.Responder {
+			return middleware.NotImplemented("operation subscriptions.RemoveSubscription has not yet been implemented")
 		})
 	}
 

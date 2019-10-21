@@ -17,16 +17,20 @@ import (
 )
 
 const (
-	FlagHTTPAddr = "http-addr"
-	FlagLogLevel = "log-level"
+	FlagHTTPAddr   = "http-addr"
+	FlagHTTPPublic = "http-public-addr"
+	FlagLogLevel   = "log-level"
+	FlagAlias      = "alias"
 
 	EnvHTTPAddr = "API_HTTP_ADDR"
 	EnvLogLevel = "API_LOG_LEVEL"
 )
 
 type apiConf struct {
-	HTTPAddr string
-	LogLevel string
+	HTTPAddr   string
+	HTTPPublic string
+	Alias      string
+	LogLevel   string
 }
 
 var (
@@ -40,11 +44,23 @@ var (
 			Destination: &apiConfig.HTTPAddr,
 		},
 		cli.StringFlag{
+			Name:        FlagHTTPPublic,
+			Usage:       "The fqdn the instance runs on",
+			Value:       ":6660",
+			Destination: &apiConfig.HTTPPublic,
+		},
+		cli.StringFlag{
 			Name:        FlagLogLevel,
 			EnvVar:      EnvLogLevel,
-			Usage:       "The log level to filter logs with before printing",
+			Usage:       "The loglevel to be used",
 			Value:       "info",
 			Destination: &apiConfig.LogLevel,
+		},
+		cli.StringFlag{
+			Name:        FlagAlias,
+			Usage:       "The alias username that will be displayed when new statuses are uploaded",
+			Value:       "anonymous",
+			Destination: &apiConfig.Alias,
 		},
 	}
 )
@@ -70,7 +86,7 @@ func apiAction(c *cli.Context) error {
 
 	var gr run.Group
 	{
-		apiV1, err := api.NewStatusAPI(log.WithPrefix(logger, "component", "api"))
+		apiV1, err := api.NewStatusAPI(apiConfig.HTTPPublic, apiConfig.Alias, log.WithPrefix(logger, "component", "api"))
 		if err != nil {
 			return err
 		}

@@ -48,8 +48,17 @@ type service struct {
 	Subscriptions map[string]Profile
 }
 
-func NewService() *service {
-	return new(service)
+func NewService(publicAddr string, alias string) *service {
+	return &service{
+		Owner: ProfileStatus{
+			URL:    publicAddr,
+			Alias:  alias,
+			Status: []StatusItem{},
+		},
+		State:         map[string]ProfileStatus{},
+		Subscribers:   map[string]Profile{},
+		Subscriptions: map[string]Profile{},
+	}
 }
 
 func (s *service) AddSubscriber(profile Profile) error {
@@ -71,10 +80,10 @@ func (s *service) AddStatus(status StatusItem) error {
 	return nil
 }
 
-func (s *service) GetStatus() ([]ProfileStatus, error) {
-	state := make([]ProfileStatus, len(s.State))
+func (s *service) GetStatus() ([]*ProfileStatus, error) {
+	state := make([]*ProfileStatus, len(s.State))
 	for _, profileStatus := range s.State {
-		state = append(state, profileStatus)
+		state = append(state, &profileStatus)
 	}
 	return state, nil
 }
