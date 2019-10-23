@@ -1,9 +1,5 @@
 package status
 
-import (
-	"fmt"
-)
-
 type Profile struct {
 	URL string `json:"url"`
 }
@@ -42,74 +38,62 @@ type Service interface {
 }
 
 type service struct {
-	Owner         ProfileStatus
-	State         map[string]ProfileStatus
-	Subscribers   map[string]Profile
-	Subscriptions map[string]Profile
+	OwnerUrl string
+	Store    Store
 }
 
 func NewService(publicAddr string, alias string) *service {
 	return &service{
-		Owner: ProfileStatus{
-			URL:    publicAddr,
-			Alias:  alias,
-			Status: []StatusItem{},
-		},
-		State:         map[string]ProfileStatus{},
-		Subscribers:   map[string]Profile{},
-		Subscriptions: map[string]Profile{},
+		OwnerUrl: publicAddr,
+		Store: NewFakeStore(publicAddr, alias),
 	}
 }
 
 func (s *service) AddSubscriber(profile Profile) error {
-	s.Subscribers[profile.URL] = profile
-	return nil
+	return s.Store.SaveSubscriber(profile)
 }
 
 func (s *service) RemoveSubscriber(profile Profile) error {
-	delete(s.Subscribers, profile.URL)
-	return nil
+	return s.Store.RemoveSubscriber(profile)
 }
 
 func (s *service) AddStatus(status StatusItem) error {
-	s.Owner.Status = append(s.Owner.Status, status)
-	err := Notify(s.Owner, s.Subscribers)
+	err := s.Store.SaveStatusItem(status, s.OwnerUrl)
 	if err != nil {
 		return err
 	}
-	return nil
+	ownerstatus, err := s.Store.GetSubscription(s.OwnerUrl)
+	if err != nil {
+		return err
+	}
+	subscriber, err :=s.Store.GetSubscriber()
+	if err != nil {
+		return err
+	}
+	return Notify(*ownerstatus, subscriber)
 }
 
 func (s *service) GetStatus() ([]*ProfileStatus, error) {
-	state := make([]*ProfileStatus, 0, len(s.State))
-	for _, profileStatus := range s.State {
-		state = append(state, &profileStatus)
-	}
-	return state, nil
+	return s.Store.GetStatus()
 }
 
 func (s *service) SubscribeTo(profile Profile) error {
-	err := AddSubscription(Profile{URL: s.Owner.URL}, profile.URL)
+	err := AddSubscription(Profile{URL: s.OwnerUrl}, profile.URL)
 	if err != nil {
 		return err
 	}
-	s.Subscriptions[profile.URL] = profile
-	return nil
+	return s.Store.SaveSubscription(profile)
+
 }
 
 func (s *service) UnsubscribeFrom(profile Profile) error {
-	err := RemoveSubscription(Profile{URL: s.Owner.URL}, profile.URL)
+	err := RemoveSubscription(Profile{URL: s.OwnerUrl}, profile.URL)
 	if err != nil {
 		return err
 	}
-	delete(s.Subscriptions, profile.URL)
-	return nil
+	return s.Store.DeleteSubscription(profile)
 }
 
 func (s *service) UpdateSubscriptionFrom(status ProfileStatus) error {
-	if _, subscribed := s.Subscriptions[status.URL]; !subscribed {
-		return fmt.Errorf("no subscription for %s", status.URL)
-	}
-	s.State[status.URL] = status
-	return nil
+	return s.Store.UpdateSubscription(&status)
 }
