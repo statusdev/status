@@ -11,20 +11,24 @@ import (
 func RemoveSubscription(profile Profile, server string) error {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(profile)
-	res, err := http.NewRequest(http.MethodDelete, server+"/subscribers", b)
+	req, err := http.NewRequest(http.MethodDelete, server+"/subscribers", b)
 	if err != nil {
 		return err
 	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
 
-	if res.Response.StatusCode > 200 {
-		return fmt.Errorf("Received status %s from %s", res.Response.Status, server)
+
+
+	if res.StatusCode > 200 {
+		return fmt.Errorf("Received status %s from %s", res.Status, server)
 	}
 	return nil
 }
 
 // Add our server to a subscription list of a remote server
 func AddSubscription(profile Profile, server string) error {
-	fmt.Printf(server)
 	res, err := postRequest(profile, server+"/subscribers")
 	if err != nil {
 		return err
@@ -35,7 +39,7 @@ func AddSubscription(profile Profile, server string) error {
 	return nil
 }
 
-func Notify(status ProfileStatus, subscribers map[string]Profile) error {
+func Notify(status ProfileStatus, subscribers []*Profile) error {
 	errors := make([]error, 0)
 	for _, subscriber := range subscribers {
 		res, err := postRequest(status, subscriber.URL+"/notifications")
